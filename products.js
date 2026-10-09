@@ -15,7 +15,7 @@ const PRODUCTS = [
   {
     id: "manjul",
     name: "Manjul",
-    price: 26000,
+    price: 45000,
     image: "manjul.jpg",
     category: "Surrati",
     description: "A rich, long-lasting concentrated perfume oil from Surrati Perfumes Factory, Makkah. Deep, elegant and unmistakably premium.",
@@ -25,7 +25,7 @@ const PRODUCTS = [
   {
     id: "chanse",
     name: "Chanse",
-    price: 21000,
+    price: 39000,
     image: "chanse.jpg",
     category: "Surrati",
     description: "A timeless fragrance of tradition. Premium concentrated oil with a bold, sophisticated character.",
@@ -34,7 +34,7 @@ const PRODUCTS = [
   {
     id: "iresh-leather",
     name: "Iresh Leather",
-    price: 19500,
+    price: 29000,
     image: "iresh-leather.jpg",
     category: "Surrati",
     description: "Bold. Rich. Masculine. A scent of true character — premium leather notes in concentrated oil form.",
@@ -44,7 +44,7 @@ const PRODUCTS = [
   {
     id: "dere-tmerhes",
     name: "Dere T'Merhes",
-    price: 19000,
+    price: 27000,
     image: "dere-tmerhes.jpg",
     category: "Surrati",
     description: "A timeless fragrance of elegance. Rich scent with a lasting impression, crafted by Surrati.",
@@ -53,7 +53,7 @@ const PRODUCTS = [
   {
     id: "reef",
     name: "Reef 33",
-    price: 75000,
+    price: 100000,
     image: "reef.jpg",
     category: "Luxury",
     description: "An exclusive luxury eau de parfum presented in a stunning gift-ready box. The pinnacle of sophistication.",
@@ -63,7 +63,7 @@ const PRODUCTS = [
   {
     id: "atlantis",
     name: "Atlantis",
-    price: 70000,
+    price: 90000,
     image: "atlantis.jpg",
     category: "Luxury",
     description: "A majestic blue eau de parfum in an ornate collector's bottle. Pure luxury in every detail.",
@@ -118,7 +118,7 @@ const PRODUCTS = [
   {
     id: "dubai-gold",
     name: "Dubai Gold",
-    price: 7000,
+    price: 8000,
     image: "dubai-gold.jpg",
     category: "Almas",
     description: "Long lasting, rich fragrance with no alcohol. A golden touch of Arabian luxury.",
@@ -137,7 +137,7 @@ const PRODUCTS = [
   {
     id: "cool-weather",
     name: "Cool Weather",
-    price: 7500,
+    price: 8500,
     image: "cool-weather.jpg",
     category: "Almiftah",
     description: "A crisp, refreshing concentrated perfume oil. Cool, clean and effortlessly premium.",
@@ -146,7 +146,7 @@ const PRODUCTS = [
   {
     id: "chocolate-musk",
     name: "Chocolate Musk",
-    price: 7500,
+    price: 8500,
     image: "chocolate-musk.jpg",
     category: "Almas",
     description: "A delicious blend of rich chocolate and warm musk. Irresistibly smooth and long lasting.",
@@ -155,7 +155,7 @@ const PRODUCTS = [
   {
     id: "musk-tahara",
     name: "Musk Tahara",
-    price: 7500,
+    price: 8500,
     image: "musk-tahara.jpg",
     category: "Almiftah",
     description: "100% natural attar. Pure white musk — clean, soft and deeply comforting.",
@@ -164,7 +164,7 @@ const PRODUCTS = [
   {
     id: "pink-chiffon",
     name: "Even Pink Chiffon",
-    price: 7500,
+    price: 8500,
     image: "pink-chiffon.jpg",
     category: "Al Mass",
     description: "Soft, feminine, unforgettable. A luxurious pink fragrance free from alcohol.",
@@ -173,7 +173,7 @@ const PRODUCTS = [
   {
     id: "turkey-oud",
     name: "Turkey Oud",
-    price: 7500,
+    price: 8500,
     image: "turkey-oud.jpg",
     category: "Naseem",
     description: "A rich, smoky oud fragrance with Turkish character. Deep, warm and commanding.",
@@ -182,7 +182,7 @@ const PRODUCTS = [
   {
     id: "pares",
     name: "Pares",
-    price: 7500,
+    price: 8500,
     image: "pares.jpg",
     category: "Almas",
     description: "Concentrated perfume oil with a distinctive, elegant scent profile. Premium quality.",
@@ -191,7 +191,7 @@ const PRODUCTS = [
   {
     id: "wild-fawakiha",
     name: "Wild Fawakeh",
-    price: 7500,
+    price: 8500,
     image: "wild-fawakiha.jpg",
     category: "Almas",
     description: "A fruity scent that leaves a lasting impression. Fresh, vibrant and full of life.",
@@ -200,7 +200,7 @@ const PRODUCTS = [
   {
     id: "terry-dmehres",
     name: "Terry D'Mehres",
-    price: 7500,
+    price: 8500,
     image: "terry-dmehres.jpg",
     category: "Almietah",
     description: "A classic scent for modern men. Eau de parfum with timeless masculine appeal.",
@@ -209,7 +209,7 @@ const PRODUCTS = [
   {
     id: "bakar-joul",
     name: "Bakar Joul (Rouge 540)",
-    price: 7500,
+    price: 8500,
     image: "bakar-joul.jpg",
     category: "Almas",
     description: "Inspired by the iconic Rouge 540. A luxurious, warm and radiant concentrated perfume oil.",
@@ -228,7 +228,7 @@ const PRODUCTS = [
   {
     id: "ameer-oud",
     name: "Ameer Al Oudh",
-    price: 7500,
+    price: 8500,
     image: "ameer-oud.jpg",
     category: "Almas",
     description: "A regal oud fragrance fit for royalty. Deep, warm and powerfully elegant.",

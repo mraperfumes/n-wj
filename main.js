@@ -10,6 +10,112 @@
   const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
   const formatNaira = (n) => "₦" + Number(n).toLocaleString("en-NG");
 
+  /* ---------- Delivery configuration ----------
+     Suggested starter pricing; adjust these values with the shop owner.
+     Base fee covers the first kilometre; each additional started kilometre
+     is charged at the configured rate. */
+  const DELIVERY_CONFIG = {
+    shopAddress: "Nawaje Perfumes and Cosmetics Nig, Saban Gari Market, Milo Line, Ahmad Mai Turare Gate, Fagge, Kano, Nigeria",
+    shopMapsUrl: "https://maps.app.goo.gl/RaJRbji2N1fkEJbd9",
+    baseFee: 500,
+    includedKm: 1,
+    extraPerKm: 200,
+    maxRadiusKm: 20
+  };
+  let customerLocation = null;
+  let deliveryQuote = null;
+
+  const setDeliveryStatus = (message, type = "") => {
+    const el = $("#deliveryStatus");
+    el.textContent = message;
+    el.className = `delivery-status${type ? ` is-${type}` : ""}`;
+  };
+
+  function renderDeliveryTotal() {
+    const fee = deliveryQuote ? deliveryQuote.fee : 0;
+    $("#orderTotal").textContent = formatNaira(cartSubtotal() + fee);
+    $("#deliveryBreakdown").hidden = !deliveryQuote;
+    if (deliveryQuote) {
+      $("#deliveryDistance").textContent = `${deliveryQuote.distanceKm.toFixed(1)} km`;
+      $("#deliveryFee").textContent = formatNaira(deliveryQuote.fee);
+      $("#deliveryMapLink").href = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(DELIVERY_CONFIG.shopAddress)}&destination=${customerLocation.latitude},${customerLocation.longitude}&travelmode=driving`;
+    }
+  }
+
+  async function getShopCoordinates() {
+    const cacheKey = "nawaje_shop_coordinates_v1";
+    try {
+      const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
+      if (cached && Number.isFinite(cached.lat) && Number.isFinite(cached.lon)) return cached;
+    } catch (_) {}
+
+    const endpoint = new URL("https://nominatim.openstreetmap.org/search");
+    endpoint.search = new URLSearchParams({ q: DELIVERY_CONFIG.shopAddress, format: "jsonv2", limit: "1" }).toString();
+    const response = await fetch(endpoint.toString(), { headers: { "Accept": "application/json" } });
+    if (!response.ok) throw new Error("Could not look up the shop location. Please try again later.");
+    const results = await response.json();
+    if (!results.length) throw new Error("The shop address could not be matched on the map. Please contact the shop to confirm its map pin.");
+    const coords = { lat: Number(results[0].lat), lon: Number(results[0].lon), displayName: results[0].display_name };
+    if (!Number.isFinite(coords.lat) || !Number.isFinite(coords.lon)) throw new Error("The shop map location is invalid.");
+    try { localStorage.setItem(cacheKey, JSON.stringify(coords)); } catch (_) {}
+    return coords;
+  }
+
+  function getCurrentPosition() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) return reject(new Error("Location is not supported by this browser."));
+      navigator.geolocation.getCurrentPosition(resolve, (error) => {
+        const messages = { 1: "Location permission was denied. You can allow it in your browser settings and try again.", 2: "Your location could not be determined. Try again somewhere with a clearer GPS signal.", 3: "Location request timed out. Please try again." };
+        reject(new Error(messages[error.code] || "Unable to get your location."));
+      }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+    });
+  }
+
+  async function calculateDelivery() {
+    const button = $("#useLocationBtn");
+    button.disabled = true;
+    button.textContent = "Getting your location…";
+    setDeliveryStatus("Waiting for location permission. Your browser will ask before sharing GPS coordinates.");
+    try {
+      const position = await getCurrentPosition();
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      customerLocation = { latitude, longitude, accuracy: position.coords.accuracy };
+      setDeliveryStatus("Location found. Calculating the driving distance…");
+
+      const shop = await getShopCoordinates();
+      const routeUrl = `https://router.project-osrm.org/route/v1/driving/${shop.lon},${shop.lat};${longitude},${latitude}?overview=false&alternatives=false&steps=false`;
+      const routeResponse = await fetch(routeUrl);
+      if (!routeResponse.ok) throw new Error("The route service is temporarily unavailable. Please try again.");
+      const routeData = await routeResponse.json();
+      if (routeData.code !== "Ok" || !routeData.routes || !routeData.routes.length) throw new Error("No driving route was found for this location.");
+
+      const distanceKm = routeData.routes[0].distance / 1000;
+      if (distanceKm > DELIVERY_CONFIG.maxRadiusKm) {
+        deliveryQuote = null;
+        renderDeliveryTotal();
+        setDeliveryStatus(`This location is ${distanceKm.toFixed(1)} km away, outside the current ${DELIVERY_CONFIG.maxRadiusKm} km delivery radius. Please contact the shop.`, "error");
+        return;
+      }
+      const billableKm = Math.max(0, Math.ceil(distanceKm - DELIVERY_CONFIG.includedKm));
+      const fee = DELIVERY_CONFIG.baseFee + billableKm * DELIVERY_CONFIG.extraPerKm;
+      deliveryQuote = { distanceKm, fee };
+      renderDeliveryTotal();
+      const accuracyNote = customerLocation.accuracy > 100 ? " GPS accuracy is approximate; please confirm your address/landmark." : "";
+      setDeliveryStatus(`Delivery estimate calculated. GPS accuracy: about ${Math.round(customerLocation.accuracy)} m.${accuracyNote}`, "success");
+      const address = $("#custAddress");
+      if (!address.value.trim()) address.value = `GPS location: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+    } catch (error) {
+      customerLocation = null;
+      deliveryQuote = null;
+      renderDeliveryTotal();
+      setDeliveryStatus(error.message || "Could not calculate delivery. Please try again.", "error");
+    } finally {
+      button.disabled = false;
+      button.innerHTML = '<span aria-hidden="true">⌖</span> Use my current location';
+    }
+  }
+
   /* ---------- State ---------- */
   let cart = [];
   try {
@@ -181,6 +287,7 @@
         .join("");
     }
     $("#cartSubtotal").textContent = formatNaira(cartSubtotal());
+    renderDeliveryTotal();
   }
 
   /* ---------- Cart Drawer ---------- */
@@ -220,10 +327,20 @@
         "---"
       );
     });
-    lines.push(`Grand Total: ${formatNaira(cartSubtotal())}`, "");
+    lines.push(`Products subtotal: ${formatNaira(cartSubtotal())}`);
+    if (deliveryQuote) {
+      lines.push(`Road distance: ${deliveryQuote.distanceKm.toFixed(1)} km`);
+      lines.push(`Estimated delivery fee: ${formatNaira(deliveryQuote.fee)}`);
+      lines.push(`Estimated order total: ${formatNaira(cartSubtotal() + deliveryQuote.fee)}`);
+    } else {
+      lines.push("Delivery fee: To be confirmed by the shop");
+      lines.push(`Estimated order total before delivery: ${formatNaira(cartSubtotal())}`);
+    }
+    lines.push("");
     lines.push(`Customer name: ${name || "—"}`);
     lines.push(`Phone: ${phone || "—"}`);
     lines.push(`Delivery address: ${address || "—"}`);
+    if (customerLocation) lines.push(`Customer GPS: https://www.google.com/maps?q=${customerLocation.latitude},${customerLocation.longitude}`);
     lines.push("", "Thank you.");
     return lines.join("\n");
   }
@@ -235,6 +352,10 @@
     }
     const num = CONTACT_NUMBERS[numberIndex];
     if (!num) return;
+    if (!deliveryQuote) {
+      const proceed = window.confirm("A delivery fee has not been calculated. The shop will confirm the delivery charge on WhatsApp. Continue?");
+      if (!proceed) return;
+    }
     const msg = buildOrderMessage();
     const url = `https://wa.me/${num.wa}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank", "noopener");
@@ -386,6 +507,7 @@
   /* ---------- Checkout buttons ---------- */
   $("#checkoutBtn1").addEventListener("click", () => checkout(0));
   $("#checkoutBtn2").addEventListener("click", () => checkout(1));
+  $("#useLocationBtn").addEventListener("click", calculateDelivery);
 
   /* ---------- Init ---------- */
   $("#year").textContent = new Date().getFullYear();
@@ -396,3 +518,4 @@
   renderCartItems();
   observeReveals();
 })();
+                                    

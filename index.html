@@ -1345,6 +1345,22 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   html { scroll-behavior: auto; }
 }
 
+
+/* ---------- GPS delivery calculator ---------- */
+.delivery-location-btn { width: 100%; margin-top: 4px; border-color: rgba(201,168,106,.42); }
+.delivery-location-btn:disabled { opacity: .65; cursor: wait; }
+.delivery-status { color: var(--light-gray); font-size: .76rem; line-height: 1.5; }
+.delivery-status.is-error { color: #ff9b9b; }
+.delivery-status.is-success { color: #b9d9bd; }
+.delivery-breakdown { padding: 13px 14px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(255,255,255,.035); display: grid; gap: 9px; }
+.delivery-breakdown[hidden] { display: none; }
+.delivery-breakdown div, .delivery-total { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.delivery-breakdown span, .delivery-total span { color: var(--light-gray); font-size: .82rem; }
+.delivery-breakdown strong { color: var(--white); font-size: .88rem; }
+.delivery-breakdown a { color: var(--gold-light); font-size: .78rem; text-decoration: underline; text-underline-offset: 3px; width: fit-content; }
+.delivery-total { padding-top: 10px; border-top: 1px solid var(--glass-border); }
+.delivery-total strong { font-family: var(--font-display); font-size: 1.15rem; color: var(--gold-light); }
+
 </style>
 </head>
 <body>
@@ -1685,7 +1701,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <label for="custPhone">Phone Number</label>
       <input type="tel" id="custPhone" placeholder="Phone number" autocomplete="tel">
       <label for="custAddress">Delivery Address</label>
-      <textarea id="custAddress" rows="2" placeholder="Delivery address" autocomplete="street-address"></textarea>
+      <textarea id="custAddress" rows="2" placeholder="Delivery address / nearby landmark" autocomplete="street-address"></textarea>
+      <button type="button" class="btn btn-glass btn-block delivery-location-btn" id="useLocationBtn">
+        <span aria-hidden="true">⌖</span> Use my current location
+      </button>
+      <p class="delivery-status" id="deliveryStatus" role="status" aria-live="polite">Share your location to calculate the delivery fee automatically.</p>
+      <div class="delivery-breakdown" id="deliveryBreakdown" hidden>
+        <div><span>Road distance</span><strong id="deliveryDistance">—</strong></div>
+        <div><span>Delivery fee</span><strong id="deliveryFee">—</strong></div>
+        <a id="deliveryMapLink" href="#" target="_blank" rel="noopener">View delivery route</a>
+      </div>
+      <div class="delivery-total"><span>Estimated order total</span><strong id="orderTotal">₦0</strong></div>
     </div>
 
     <p class="cart-choose">Choose how to send your order:</p>
